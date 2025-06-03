@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ángulo de Referencia Interactivo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .card h2 {
+            color: #4a5568;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 3px solid #f093fb;
+            padding-bottom: 10px;
+        }
+        
+        .controls {
+            margin-bottom: 30px;
+        }
+        
+        .slider-container {
+            margin-bottom: 20px;
+        }
+        
+        .slider-label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #4a5568;
+            font-size: 1.1em;
+        }
+        
+        .angle-slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: linear-gradient(to right, #f093fb, #f5576c);
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        
+        .angle-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: white;
+            border: 3px solid #f093fb;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+        
+        .angle-slider::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: white;
+            border: 3px solid #f093fb;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+        
+        .angle-display {
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #f093fb;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #f7fafc;
+            border-radius: 8px;
+        }
+        
+        .radians-display {
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 15px;
+            padding: 8px;
+            background: #edf2f7;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .circle-container {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+            position: relative;
+        }
+        
+        .unit-circle-svg {
+            width: 400px;
+            height: 400px;
+        }
+        
+        .info-panels {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .info-panel {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #f093fb;
+        }
+        
+        .info-panel h4 {
+            color: #f093fb;
+            margin-bottom: 10px;
+        }
+        
+        .trig-values {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+        
+        .trig-values h3 {
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .trig-value {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 5px;
+        }
+        
+        .trig-value-exact {
+            font-family: 'Courier New', monospace;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+        
+        .quadrant-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .quadrant-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .quadrant-card.active {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(240, 147, 251, 0.4);
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .unit-circle-svg {
+                width: 300px;
+                height: 300px;
+            }
+            
+            .info-panels {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Ángulo de Referencia Interactivo</h1>
+            <p>Explora cómo se forman los ángulos de referencia y las funciones trigonométricas</p>
+        </div>
+        
+        <div class="main-content">
+            <div class="card">
+                <h2>🎛️ Control Interactivo</h2>
+                
+                <div class="controls">
+                    <div class="slider-container">
+                        <label class="slider-label">Ángulo: <span id="angleValue">0°</span></label>
+                        <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
+                            <input type="range" id="angleSlider" class="angle-slider" min="0" max="360" value="0" step="1" style="flex: 1;">
+                            <input type="number" id="angleInput" min="0" max="360" value="0" step="1" style="width: 80px; padding: 8px; border: 2px solid #f093fb; border-radius: 5px; text-align: center; font-weight: bold;">
+                        </div>
+                    </div>
+                    
+                    <div class="angle-display" id="angleDisplay">
+                        θ = 0°
+                    </div>
+                    
+                    <div class="radians-display" id="radiansDisplay">
+                        θ = 0 rad
+                    </div>
+                </div>
+                
+                <div class="trig-values">
+                    <h3>📊 Funciones Trigonométricas</h3>
+                    <div class="trig-value">
+                        <span>sen(θ) =</span>
+                        <span id="sinValue" class="trig-value-exact">0</span>
+                    </div>
+                    <div class="trig-value">
+                        <span>cos(θ) =</span>
+                        <span id="cosValue" class="trig-value-exact">1</span>
+                    </div>
+                    <div class="trig-value">
+                        <span>tan(θ) =</span>
+                        <span id="tanValue" class="trig-value-exact">0</span>
+                    </div>
+                </div>
+                
+                <div class="info-panels">
+                    <div class="info-panel">
+                        <h4>Cuadrante</h4>
+                        <div id="quadrantInfo">I</div>
+                    </div>
+                    <div class="info-panel">
+                        <h4>Ángulo de Referencia</h4>
+                        <div id="referenceAngleInfo">0°</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>🔄 Círculo Unitario</h2>
+                
+                <div class="circle-container">
+                    <svg class="unit-circle-svg" viewBox="-220 -220 440 440">
+                        <!-- Grid lines -->
+                        <defs>
+                            <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#e2e8f0" stroke-width="0.5"/>
+                            </pattern>
+                        </defs>
+                        <rect x="-220" y="-220" width="440" height="440" fill="url(#grid)"/>
+                        
+                        <!-- Main axes -->
+                        <line x1="-200" y1="0" x2="200" y2="0" stroke="#4a5568" stroke-width="2"/>
+                        <line x1="0" y1="-200" x2="0" y2="200" stroke="#4a5568" stroke-width="2"/>
+                        
+                        <!-- Unit circle -->
+                        <circle cx="0" cy="0" r="150" fill="none" stroke="#4a5568" stroke-width="3"/>
+                        
+                        <!-- Angle markings -->
+                        <g id="angleMarkings"></g>
+                        
+                        <!-- Reference angle arc -->
+                        <path id="referenceArc" fill="none" stroke="#ff6b6b" stroke-width="3" stroke-dasharray="5,5"/>
+                        
+                        <!-- Main angle arc -->
+                        <path id="mainArc" fill="none" stroke="#4ecdc4" stroke-width="3"/>
+                        
+                        <!-- Angle lines -->
+                        <line id="angleLine" x1="0" y1="0" x2="150" y2="0" stroke="#4ecdc4" stroke-width="3"/>
+                        <line id="referenceLine" x1="0" y1="0" x2="150" y2="0" stroke="#ff6b6b" stroke-width="2" stroke-dasharray="5,5"/>
+                        
+                        <!-- Coordinate projections -->
+                        <line id="cosLine" x1="0" y1="0" x2="0" y2="0" stroke="#45b7d1" stroke-width="3"/>
+                        <line id="sinLine" x1="0" y1="0" x2="0" y2="0" stroke="#96ceb4" stroke-width="3"/>
+                        
+                        <!-- Moving point -->
+                        <circle id="movingPoint" cx="150" cy="0" r="8" fill="#4ecdc4" stroke="white" stroke-width="2"/>
+                        
+                        <!-- Quadrant labels -->
+                        <text x="75" y="-75" text-anchor="middle" font-size="20" font-weight="bold" fill="#4a5568">I</text>
+                        <text x="-75" y="-75" text-anchor="middle" font-size="20" font-weight="bold" fill="#4a5568">II</text>
+                        <text x="-75" y="85" text-anchor="middle" font-size="20" font-weight="bold" fill="#4a5568">III</text>
+                        <text x="75" y="85" text-anchor="middle" font-size="20" font-weight="bold" fill="#4a5568">IV</text>
+                        
+                        <!-- Coordinate labels -->
+                        <text id="pointCoords" x="0" y="-205" text-anchor="middle" font-size="14" font-weight="bold" fill="#4a5568">(1, 0)</text>
+                    </svg>
+                </div>
+                
+                <div class="quadrant-info">
+                    <div class="quadrant-card" id="q2">
+                        <h4>Cuadrante II</h4>
+                        <div>sin(+), cos(-), tan(-)</div>
+                    </div>
+                    <div class="quadrant-card" id="q1">
+                        <h4>Cuadrante I</h4>
+                        <div>sin(+), cos(+), tan(+)</div>
+                    </div>
+                    <div class="quadrant-card" id="q3">
+                        <h4>Cuadrante III</h4>
+                        <div>sin(-), cos(-), tan(+)</div>
+                    </div>
+                    <div class="quadrant-card" id="q4">
+                        <h4>Cuadrante IV</h4>
+                        <div>sin(-), cos(+), tan(-)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toRadians(degrees) {
+            return degrees * Math.PI / 180;
+        }
+        
+        function toDegrees(radians) {
+            return radians * 180 / Math.PI;
+        }
+        
+        function getQuadrant(angle) {
+            const normalized = ((angle % 360) + 360) % 360;
+            if (normalized >= 0 && normalized < 90) return 1;
+            if (normalized >= 90 && normalized < 180) return 2;
+            if (normalized >= 180 && normalized < 270) return 3;
+            return 4;
+        }
+        
+        function getReferenceAngle(angle) {
+            const normalized = ((angle % 360) + 360) % 360;
+            const quadrant = getQuadrant(angle);
+            
+            switch (quadrant) {
+                case 1: return normalized;
+                case 2: return 180 - normalized;
+                case 3: return normalized - 180;
+                case 4: return 360 - normalized;
+            }
+        }
+        
+        function getRadiansDisplay(degrees) {
+            const normalized = ((degrees % 360) + 360) % 360;
+            
+            // Ángulos principales con π
+            const principalAngles = {
+                0: '0',
+                30: 'π/6',
+                45: 'π/4',
+                60: 'π/3',
+                90: 'π/2',
+                120: '2π/3',
+                135: '3π/4',
+                150: '5π/6',
+                180: 'π',
+                210: '7π/6',
+                225: '5π/4',
+                240: '4π/3',
+                270: '3π/2',
+                300: '5π/3',
+                315: '7π/4',
+                330: '11π/6',
+                360: '2π'
+            };
+            
+            if (principalAngles[normalized]) {
+                return principalAngles[normalized];
+            } else {
+                // Convertir a radianes y mostrar con decimales
+                const radians = toRadians(degrees);
+                return radians.toFixed(3);
+            }
+        }
+        
+        function getExactValue(angle) {
+            // Normalizar el ángulo
+            const normalized = ((angle % 360) + 360) % 360;
+            
+            const exactAngles = {
+                // Cuadrante I
+                0: { sin: '0', cos: '1', tan: '0' },
+                30: { sin: '1/2', cos: '√3/2', tan: '√3/3' },
+                45: { sin: '√2/2', cos: '√2/2', tan: '1' },
+                60: { sin: '√3/2', cos: '1/2', tan: '√3' },
+                90: { sin: '1', cos: '0', tan: '∞' },
+                
+                // Cuadrante II
+                120: { sin: '√3/2', cos: '-1/2', tan: '-√3' },
+                135: { sin: '√2/2', cos: '-√2/2', tan: '-1' },
+                150: { sin: '1/2', cos: '-√3/2', tan: '-√3/3' },
+                180: { sin: '0', cos: '-1', tan: '0' },
+                
+                // Cuadrante III
+                210: { sin: '-1/2', cos: '-√3/2', tan: '√3/3' },
+                225: { sin: '-√2/2', cos: '-√2/2', tan: '1' },
+                240: { sin: '-√3/2', cos: '-1/2', tan: '√3' },
+                270: { sin: '-1', cos: '0', tan: '∞' },
+                
+                // Cuadrante IV
+                300: { sin: '-√3/2', cos: '1/2', tan: '-√3' },
+                315: { sin: '-√2/2', cos: '√2/2', tan: '-1' },
+                330: { sin: '-1/2', cos: '√3/2', tan: '-√3/3' },
+                360: { sin: '0', cos: '1', tan: '0' }
+            };
+            
+            return exactAngles[normalized] || null;
+        }
+        
+        function createAngleMarkings() {
+            const markings = document.getElementById('angleMarkings');
+            markings.innerHTML = '';
+            
+            // Major angle markings - todos los ángulos principales
+            const majorAngles = [0, 30, 45, 60, 90, 120, 135, 150, 180, 210, 225, 240, 270, 300, 315, 330];
+            
+            majorAngles.forEach(angle => {
+                const rad = toRadians(angle);
+                const x = 150 * Math.cos(rad);
+                const y = -150 * Math.sin(rad); // Negative because SVG y increases downward
+                
+                // Major tick
+                const x1 = 140 * Math.cos(rad);
+                const y1 = -140 * Math.sin(rad);
+                const x2 = 160 * Math.cos(rad);
+                const y2 = -160 * Math.sin(rad);
+                
+                const tick = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                tick.setAttribute('x1', x1);
+                tick.setAttribute('y1', y1);
+                tick.setAttribute('x2', x2);
+                tick.setAttribute('y2', y2);
+                tick.setAttribute('stroke', '#4a5568');
+                tick.setAttribute('stroke-width', '2');
+                markings.appendChild(tick);
+                
+                // Label - mostrar todos los ángulos principales
+                const labelX = 175 * Math.cos(rad);
+                const labelY = -175 * Math.sin(rad);
+                
+                const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                label.setAttribute('x', labelX);
+                label.setAttribute('y', labelY + 5);
+                label.setAttribute('text-anchor', 'middle');
+                label.setAttribute('font-size', '12');
+                label.setAttribute('font-weight', 'bold');
+                label.setAttribute('fill', '#4a5568');
+                label.textContent = angle + '°';
+                markings.appendChild(label);
+            });
+        }
+        
+        function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
+            const angleInRadians = toRadians(angleInDegrees);
+            return {
+                x: centerX + (radius * Math.cos(angleInRadians)),
+                y: centerY - (radius * Math.sin(angleInRadians)) // Negative because SVG y increases downward
+            };
+        }
+        
+        function describeArc(x, y, radius, startAngle, endAngle) {
+            const start = polarToCartesian(x, y, radius, startAngle);
+            const end = polarToCartesian(x, y, radius, endAngle);
+            const largeArcFlag = Math.abs(endAngle - startAngle) <= 180 ? "0" : "1";
+            const sweepFlag = endAngle > startAngle ? "0" : "1";
+            
+            return [
+                "M", start.x, start.y,
+                "A", radius, radius, 0, largeArcFlag, sweepFlag, end.x, end.y
+            ].join(" ");
+        }
+        
+        function updateVisualization(angle) {
+            const rad = toRadians(angle);
+            const quadrant = getQuadrant(angle);
+            const referenceAngle = getReferenceAngle(angle);
+            const referenceRad = toRadians(referenceAngle);
+            
+            // Calculate coordinates
+            const x = 150 * Math.cos(rad);
+            const y = -150 * Math.sin(rad); // Negative because SVG y increases downward
+            const cosValue = Math.cos(rad);
+            const sinValue = Math.sin(rad);
+            const tanValue = Math.tan(rad);
+            
+            // Update moving point
+            document.getElementById('movingPoint').setAttribute('cx', x);
+            document.getElementById('movingPoint').setAttribute('cy', y);
+            
+            // Update angle line
+            document.getElementById('angleLine').setAttribute('x2', x);
+            document.getElementById('angleLine').setAttribute('y2', y);
+            
+            // Update coordinate projections
+            document.getElementById('cosLine').setAttribute('x1', x);
+            document.getElementById('cosLine').setAttribute('y1', 0);
+            document.getElementById('cosLine').setAttribute('x2', x);
+            document.getElementById('cosLine').setAttribute('y2', y);
+            
+            document.getElementById('sinLine').setAttribute('x1', 0);
+            document.getElementById('sinLine').setAttribute('y1', y);
+            document.getElementById('sinLine').setAttribute('x2', x);
+            document.getElementById('sinLine').setAttribute('y2', y);
+            
+            // Update main arc
+            if (angle !== 0) {
+                document.getElementById('mainArc').setAttribute('d', describeArc(0, 0, 50, 0, angle));
+            } else {
+                document.getElementById('mainArc').setAttribute('d', '');
+            }
+            
+            // Update reference angle line and arc
+            let refX, refY, refArcPath = '';
+            switch (quadrant) {
+                case 1:
+                    refX = x;
+                    refY = y;
+                    if (referenceAngle !== 0) {
+                        refArcPath = describeArc(0, 0, 30, 0, referenceAngle);
+                    }
+                    break;
+                case 2:
+                    refX = 150 * Math.cos(toRadians(180 - referenceAngle));
+                    refY = -150 * Math.sin(toRadians(180 - referenceAngle));
+                    if (referenceAngle !== 0) {
+                        refArcPath = describeArc(0, 0, 30, 180 - referenceAngle, 180);
+                    }
+                    break;
+                case 3:
+                    refX = 150 * Math.cos(toRadians(180 + referenceAngle));
+                    refY = -150 * Math.sin(toRadians(180 + referenceAngle));
+                    if (referenceAngle !== 0) {
+                        refArcPath = describeArc(0, 0, 30, 180, 180 + referenceAngle);
+                    }
+                    break;
+                case 4:
+                    refX = 150 * Math.cos(toRadians(360 - referenceAngle));
+                    refY = -150 * Math.sin(toRadians(360 - referenceAngle));
+                    if (referenceAngle !== 0) {
+                        refArcPath = describeArc(0, 0, 30, 360 - referenceAngle, 360);
+                    }
+                    break;
+            }
+            
+            document.getElementById('referenceLine').setAttribute('x2', refX);
+            document.getElementById('referenceLine').setAttribute('y2', refY);
+            document.getElementById('referenceArc').setAttribute('d', refArcPath);
+            
+            // Update coordinate label con colores que coincidan con las líneas
+            const cosColor = '#45b7d1'; // Color de la línea del coseno
+            const sinColor = '#96ceb4'; // Color de la línea del seno
+            document.getElementById('pointCoords').innerHTML = `(<tspan fill="${cosColor}">${cosValue.toFixed(2)}</tspan>, <tspan fill="${sinColor}">${sinValue.toFixed(2)}</tspan>)`;
+            
+            // Update values in UI - Priorizar valores exactos
+            const exactValues = getExactValue(angle);
+            
+            if (exactValues) {
+                // Usar valores exactos (fracciones y radicales)
+                document.getElementById('sinValue').textContent = exactValues.sin;
+                document.getElementById('cosValue').textContent = exactValues.cos;
+                document.getElementById('tanValue').textContent = exactValues.tan;
+            } else {
+                // Usar valores decimales para ángulos no principales
+                document.getElementById('sinValue').textContent = sinValue.toFixed(3);
+                document.getElementById('cosValue').textContent = cosValue.toFixed(3);
+                document.getElementById('tanValue').textContent = Math.abs(tanValue) > 1000 ? '∞' : tanValue.toFixed(3);
+            }
+            
+            document.getElementById('quadrantInfo').textContent = `Cuadrante ${quadrant}`;
+            document.getElementById('referenceAngleInfo').textContent = `${referenceAngle.toFixed(1)}°`;
+            
+            // Update radians display
+            const radiansText = getRadiansDisplay(angle);
+            document.getElementById('radiansDisplay').innerHTML = `θ = ${radiansText} rad`;
+            
+            // Highlight active quadrant
+            document.querySelectorAll('.quadrant-card').forEach(card => card.classList.remove('active'));
+            document.getElementById(`q${quadrant}`).classList.add('active');
+        }
+        
+        function initializeApp() {
+            createAngleMarkings();
+            
+            const slider = document.getElementById('angleSlider');
+            const angleInput = document.getElementById('angleInput');
+            
+            function updateAngle(angle) {
+                // Asegurar que el ángulo esté en el rango 0-360
+                angle = Math.max(0, Math.min(360, angle));
+                
+                // Actualizar ambos controles
+                slider.value = angle;
+                angleInput.value = angle;
+                
+                // Actualizar displays
+                document.getElementById('angleValue').textContent = angle + '°';
+                document.getElementById('angleDisplay').textContent = `θ = ${angle}°`;
+                
+                // Actualizar visualización
+                updateVisualization(angle);
+            }
+            
+            slider.addEventListener('input', function() {
+                const angle = parseInt(this.value);
+                updateAngle(angle);
+            });
+            
+            angleInput.addEventListener('input', function() {
+                const angle = parseInt(this.value) || 0;
+                updateAngle(angle);
+            });
+            
+            angleInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    const angle = parseInt(this.value) || 0;
+                    updateAngle(angle);
+                }
+            });
+            
+            // Initialize with 0 degrees
+            updateVisualization(0);
+        }
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', initializeApp);
+    </script>
+</body>
+</html>
