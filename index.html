@@ -318,8 +318,8 @@
                         <line id="referenceLine" x1="0" y1="0" x2="150" y2="0" stroke="#ff6b6b" stroke-width="2" stroke-dasharray="5,5"/>
                         
                         <!-- Coordinate projections -->
-                        <line id="cosLine" x1="0" y1="0" x2="0" y2="0" stroke="#45b7d1" stroke-width="3"/>
-                        <line id="sinLine" x1="0" y1="0" x2="0" y2="0" stroke="#96ceb4" stroke-width="3"/>
+                        <line id="cosLine" x1="0" y1="0" x2="0" y2="0" stroke="#cc0000" stroke-width="3"/>
+                        <line id="sinLine" x1="0" y1="0" x2="0" y2="0" stroke="#0066cc" stroke-width="3"/>
                         
                         <!-- Moving point -->
                         <circle id="movingPoint" cx="150" cy="0" r="8" fill="#4ecdc4" stroke="white" stroke-width="2"/>
@@ -592,9 +592,9 @@
             document.getElementById('referenceLine').setAttribute('y2', refY);
             document.getElementById('referenceArc').setAttribute('d', refArcPath);
             
-            // Update coordinate label con colores que coincidan con las líneas
-            const cosColor = '#45b7d1'; // Color de la línea del coseno
-            const sinColor = '#96ceb4'; // Color de la línea del seno
+            // Update coordinate label con colores actualizados
+            const cosColor = '#0066cc'; // Azul para coseno
+            const sinColor = '#cc0000'; // Rojo para seno
             document.getElementById('pointCoords').innerHTML = `(<tspan fill="${cosColor}">${cosValue.toFixed(2)}</tspan>, <tspan fill="${sinColor}">${sinValue.toFixed(2)}</tspan>)`;
             
             // Update values in UI - Priorizar valores exactos
